@@ -1,11 +1,14 @@
 name: 798x-UBOOT
 
 on:
-  #自动编译：每周日早上4点
+  #自动编译：每周日早上9点
   schedule:
-    - cron: 0 20 * * 0
+    - cron: 0 1 * * 0
   #手动编译
   workflow_dispatch:
+  repository_dispatch:
+  watch:
+    types: [started]
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -38,8 +41,10 @@ jobs:
       fail-fast: false
       #max-parallel: 4
       matrix:
-        WRT_ATF: [atf-20220606-637ba581b, atf-20231013-0ea67d76a]
-        WRT_MTK: [uboot-mtk-20220606, uboot-mtk-20230718-09eda825]
+        #WRT_ATF: [atf-20220606-637ba581b, atf-20231013-0ea67d76a]
+        WRT_ATF: [atf-20231013-0ea67d76a]
+        #WRT_MTK: [uboot-mtk-20220606, uboot-mtk-20230718-09eda825]
+        WRT_MTK: [uboot-mtk-20230718-09eda825]
 
     steps:
       - name: Checkout Projects
@@ -74,7 +79,7 @@ jobs:
           sudo -E apt -yqq autoremove --purge
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
-          sudo -E apt -yqq install dos2unix bison gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler qemu-user-static qemu-user-binfmt
+          sudo -E apt -yqq install dos2unix bison gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler qemu-user-static
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
 
@@ -136,7 +141,7 @@ jobs:
             mv -f $FILE ./upload/$NEW_FILE
           done
 
-          zip -r ./upload/"$WRT_AUTHOR"_"$WRT_VER"_"$WRT_DATE".zip ./upload/*.*
+          #zip -r ./upload/"$WRT_AUTHOR"_"$WRT_VER"_"$WRT_DATE".zip ./upload/*.*
 
       - name: Release Firmware
         uses: softprops/action-gh-release@master
